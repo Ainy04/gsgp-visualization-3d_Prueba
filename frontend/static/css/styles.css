@@ -1,0 +1,825 @@
+html, body {
+    height: 100%; /* Asegura que el body ocupe toda la altura de la ventana */
+    margin: 0; /* Elimina márgenes predeterminados */
+}
+
+body {
+    display: flex; /* Mantén el flexbox para la disposición de los elementos */
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+}
+
+/* Botón para abrir el menú */
+.menu-button {
+    position: fixed;
+    z-index: 1000;
+    top: 10px;
+    left: 10px;
+    padding: 8px 12px;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 18px;
+    opacity: 0.7; /* Hace que el botón sea semitransparente */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease;
+}
+
+.menu-button:hover {
+    background-color: #555;
+}
+
+.main-menu {
+    display: none;
+    background-color: #222;
+    position: fixed; /* Se mueve con el scroll */
+    z-index: 1010;
+    top: 10px;
+    left: 50px;
+    padding: 8px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    width: auto; /* No afecta el tamaño de otros elementos */
+}
+
+.main-menu.show {
+    display: block;
+}
+
+.menu-item {
+    width: 100%;
+    padding: 8px;
+    color: white;
+    background-color: #444;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-bottom: 4px;
+    text-align: left;
+    transition: background-color 0.3s ease;
+}
+
+.menu-item:hover {
+    background-color: #666;
+}
+
+/* Submenú con los botones en fila */
+.submenu2 {
+    display: none;
+    background-color: #333;
+    padding: 8px;
+    margin-top: 4px;
+    border-radius: 3px;
+    display: flex; /* Alineación en fila */
+    justify-content: center; /* Centrar botones */
+    gap: 10px; /* Espacio entre botones */
+}
+
+/* Estilo para los botones */
+.submenu2-button {
+    flex: 1; /* Para que los botones tengan el mismo ancho */
+    padding: 10px 15px; /* Tamaño adecuado */
+    background-color: #444;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    text-align: center;
+}
+
+.submenu2-button:hover {
+    background-color: #555;
+}
+
+.botonEscalaClick {
+    background-color: #007BFF;
+}
+
+/* Submenú distribuido en 2 columnas */
+.submenu {
+    display: none;
+    background-color: #333;
+    padding: 8px;
+    margin-top: 4px;
+    border-radius: 3px;
+    grid-template-columns: repeat(2, 1fr); /* Dos columnas */
+    gap: 6px; /* Espacio entre botones */
+}
+
+.submenu.show {
+    display: grid;
+}
+
+.submenu-button {
+    padding: 6px;
+    color: white;
+    background-color: #555;
+    border: none;
+    font-size: 12px;
+    cursor: pointer;
+    text-align: center;
+    border-radius: 3px;
+    transition: background-color 0.3s ease;
+}
+
+.submenu-button:hover {
+    background-color: #777;
+}
+
+#container {
+    display: flex;
+    flex-direction: row; /* Asegura que estén en fila */
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 50px; /* Espacio entre los gráficos */
+    width: 100%;
+    flex-wrap: nowrap; /* Asegura que no se vayan a la siguiente línea */
+    box-sizing: border-box;
+}
+
+#legendDiv {
+    max-height: 740px; /* Ajusta esto según el tamaño que quieras */
+    white-space: normal;
+    max-width: 200px;
+    word-wrap: break-word;
+    overflow-y: auto; /* Habilita el scroll interno vertical */
+    overflow-x: hidden; /* Desactiva el scroll horizontal */
+    padding: 10px;
+    flex-shrink: 0; /* Evita que el legend se achique */
+}
+
+#plotDiv, #plotDiv2 {
+    width: 700px; /* Ajusta si es necesario */
+    height: 700px;
+    border: 4px solid transparent;
+    box-sizing: border-box;
+    flex-grow: 1; /* Permite que los gráficos crezcan proporcionalmente */
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th, td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: center;
+}
+
+/* Para el texto y la apariencia general */
+.min-w-full {
+    width: 100%;
+}
+
+.border-collapse {
+    border-collapse: collapse;
+}
+
+.shadow-lg {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.rounded-lg {
+    border-radius: 8px;
+}
+
+.bg-black {
+    background-color: black;
+}
+
+.text-white {
+    color: white;
+}
+
+.font-semibold {
+    font-weight: 600;
+}
+
+.px-4, .py-2 {
+    padding: 8px 16px;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.truncate-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px; /* Ajusta según el ancho deseado */
+    display: block;
+    cursor: pointer;
+    border-left: none;
+    border-right: 1px solid black;
+    border-bottom: 1px solid black;
+    border-top: none; /* Quita el borde superior */
+    padding: 8px; /* Para mejor apariencia */
+}
+
+.modal {
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+
+.modal-show {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.modal-content {
+    word-wrap: break-word;
+    max-width: 90%;
+    line-height: 1.4;
+}
+
+.scrollable {
+    max-height: 200px; /* Ajusta esta altura según sea necesario */
+    overflow-y: auto;
+}
+
+button:disabled {
+    background-color: gray; /* Cambia el color de fondo */
+    color: white; /* Cambia el color del texto */
+    cursor: not-allowed; /* Cambia el cursor para indicar que está deshabilitado */
+    opacity: 0.7; /* Hace el botón más tenue */
+}
+
+#katexTooltip {
+    position: absolute;
+    pointer-events: none;
+    background-color: #fff;
+    color: black;
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    box-shadow: 0px 0px 5px rgba(0,0,0,0.2);
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    z-index: 1000;
+    display: none;
+    max-width: 300px;
+}
+
+.buttonTable {
+    padding: 8px 16px;
+    margin: 10px 5px;
+    background-color: #2c3e50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.buttonTable:hover {
+    background-color: #34495e;
+}
+
+.mini-popup {
+    display: none;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    border-radius: 10px;
+    padding: 15px;
+    width: 400px;
+    max-width: 90vw;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.mini-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    font-size: 14px;
+}
+
+.mini-table th,
+.mini-table td {
+    border: 1px solid #222; /* Gris muy oscuro */
+    padding: 6px 8px;
+    text-align: center;
+    word-wrap: break-word;
+    white-space: normal;
+}
+
+.mini-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 999;
+}
+
+.mini-table thead {
+    background-color: #2c3e50;
+    color: white;
+}
+
+.mini-clickable {
+    cursor: pointer;
+    background-color: #d5f5e3;
+    transition: background-color 0.2s;
+}
+
+.mini-clickable:hover {
+    background-color: #a9dfbf;
+}
+
+.mini-inactive {
+    background-color: #f5b7b1 !important;
+}
+
+.mini-x-cell {
+    color: red;
+    font-weight: bold;
+}
+
+.titulo {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+}
+
+.mini-table-container {
+    max-height: 300px; /* o el alto que prefieras */
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+}
+
+.boton-abrir2 {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.boton-abrir2:hover {
+    background-color: #45a049;
+}
+
+.popup-contenedor2 {
+    display: none;
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 320px;
+    max-height: 300px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.popup-contenedor2.mostrar {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.popup-encabezado2 {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.popup-titulo2 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.boton-cerrar2 {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0;
+}
+
+.popup-contenido2 {
+    padding: 15px;
+    max-height: 230px;
+    overflow-y: auto;
+}
+
+.latex-container {
+    max-height: 250px;
+    overflow-y: auto;
+    word-wrap: break-word;
+    white-space: normal;
+}
+
+.h2new {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 20px 0;
+    color: #333;
+}
+
+/* Segundo codigo de CSS */
+
+#selectFileButton, #playButton, #showAllButton, #loadLastValuesButton, #convergenceButton, #toggleButton, #customizeFile {
+    font-size: 150%;
+    border-radius: 10px;
+    padding: 15px 30px;
+}
+
+#selectFileButton, #playButton, #showAllButton, #loadLastValuesButton, #convergenceButton, #toggleButton, #customizeFile {
+    padding: 15px 30px;
+    border-radius: 10px;
+}
+
+#control {
+    width: 80%;
+    margin: 20px auto;
+}
+
+#numeroPuntos {
+    width: 70px;
+    text-align: center;
+    font-size: 1.2em;
+    margin-left: 10px;
+}
+
+/* Estilo para los botones */
+#selectFileButton, #playButton, #showAllButton, #loadLastValuesButton, #convergenceButton, #toggleButton, #customizeFile {
+    font-size: 16px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    background-color: #007BFF; /* Azul */
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+}
+
+#toggleButton:hover, #selectFileButton:hover, #playButton:hover, #showAllButton:hover, #loadLastValuesButton:hover, #convergenceButton:hover, #customizeFile:hover {
+    background-color: #0056b3; /* Azul más oscuro en hover */
+    transform: scale(1.05);
+}
+
+#toggleButton:focus, #selectFileButton:focus, #playButton:focus, #showAllButton:focus, #loadLastValuesButton:focus, #convergenceButton:focus {
+    outline: none;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+}
+
+/* Estilo para el botón presionado */
+#toggleButton:active, #selectFileButton:active, #playButton:active, #showAllButton:active, #loadLastValuesButton:active, #convergenceButton:active {
+    background-color: #004085; /* Azul aún más oscuro cuando se presiona */
+}
+
+/* Estilo para el botón seleccionado */
+.selected-button {
+    background-color: #003366 !important; /* Azul más oscuro cuando es seleccionado */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Estilo del contenedor de los botones */
+.button-container {
+    margin-top: 20px;
+    display: flex;
+    gap: 15px;
+    padding: 0 15px; /* Añadí un relleno a los lados */
+    width: 100%;
+    box-sizing: border-box;
+    margin-left: 10px; /* Margen izquierdo para separar del borde de la pantalla */
+}
+
+/* Estilo moderno para el input */
+input[type="text"], input[type="number"] {
+    font-size: 16px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 2px solid #007BFF; /* Borde azul */
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+/* Efecto al pasar el mouse */
+input[type="text"]:hover, input[type="number"]:hover {
+    border-color: #0056b3;
+}
+
+/* Efecto al hacer clic */
+input[type="text"]:focus, input[type="number"]:focus {
+    border-color: #003366; /* Azul más oscuro */
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+}
+
+/* Personalización del slider */
+#slider {
+    -webkit-appearance: none; /* Remover estilo predeterminado en Webkit */
+    width: 30%; /* Longitud del slider */
+    margin: 10px 0;
+    background: transparent; /* Fondo transparente para usar la pista personalizada */
+}
+
+/* Pista del slider para navegadores Webkit */
+#slider::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 10px; /* Aumenta este valor para una pista más gruesa */
+    background: #ddd;
+    border-radius: 5px;
+    border: 2px solid black; /* Contorno negro */
+}
+
+/* Pulgar del slider para navegadores Webkit */
+#slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    margin-top: -8px; /* Ajusta para centrar el pulgar en la pista */
+    width: 25px;
+    height: 25px;
+    background: #007BFF;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid black; /* Contorno negro */
+}
+
+/* Pista del slider para Firefox */
+#slider::-moz-range-track {
+    width: 100%;
+    height: 10px;
+    background: #ddd;
+    border-radius: 5px;
+    border: 2px solid black; /* Contorno negro */
+}
+
+/* Pulgar del slider para Firefox */
+#slider::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    background: #007BFF;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 3px solid black; /* Contorno negro */
+}
+
+.selected {
+    border: 3px solid #3b82f6 !important;
+    background-color: #D6EAF8 !important;
+}
+
+tr {
+    cursor: pointer;
+}
+
+.disabled {
+    pointer-events: none;
+}
+
+/* Contenedor relativo para posicionar el menú */
+.menu-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+/* Menú desplegable arriba del botón */
+.dropdown-menu {
+    position: absolute;
+    bottom: 100%; /* se posiciona arriba del botón */
+    left: 0;
+    display: none;
+    flex-direction: column;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 8px;
+    gap: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    z-index: 10;
+}
+
+#dropdownMenu button {
+    padding: 8px 12px;
+    border: none;
+    background-color: #007BFF; /* Azul */
+    color: white;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+#dropdownMenu button:hover {
+    background-color: #0056b3;
+}
+
+.info-message {
+    font-size: 14px;
+    background-color: #eaf4fc;
+    border-left: 4px solid #007BFF;
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    color: #333;
+    max-width: 800px;
+    max-height: 150px; /* Ajusta la altura como necesites */
+    overflow-y: auto; /* Habilita scroll vertical */
+}
+
+.mini-table-container {
+    max-height: 300px; /* o el alto que prefieras */
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+}
+
+#custom-modal-overlay {
+    position: fixed;
+    top: 0; 
+    left: 0;
+    width: 100%; 
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+    z-index: 998;
+}
+
+#custom-modal-box {
+    position: fixed;
+    top: 50%; 
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    width: 400px;
+    max-width: 90vw;
+    z-index: 999;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    text-align: center;
+}
+
+.custom-modal-buttons button {
+    margin: 10px 5px;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    background-color: #2c3e50;
+    color: white;
+    transition: background-color 0.2s;
+}
+
+.custom-modal-buttons button:hover {
+    background-color: #34495e;
+}
+
+#custom-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+#custom-modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 400px;
+    text-align: center;
+}
+
+#custom-modal-buttons {
+    margin-top: 20px;
+}
+
+#custom-modal-buttons button, #mostrarInstr {
+    margin: 5px 10px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007BFF;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#custom-modal-buttons button:hover {
+    background-color: #0056b3;
+}
+
+#bienvenida {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    padding: 40px;
+    text-align: center;
+    width: 500px;
+}
+
+#instrucciones {
+    position: fixed;
+    display: none;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    padding: 40px;
+    text-align: align;
+}
+
+#bienvenida p {
+    font-size: 18px;
+    color: #555;
+    word-wrap: break-word;
+}
+
+#instrucciones ul {
+    list-style-type: square;
+    padding-left: 20px;
+}
+
+#instrucciones li, #info-message {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+#katexTooltip {
+    position: absolute;
+    display: none;
+    padding: 8px 12px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    pointer-events: none;
+    z-index: 999;
+}
+
+.fila-controles {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: 30px; /* separamos de la esquina izquierda */
+    width: fit-content; /* evita que se expanda innecesariamente */
+}
+
+.etiqueta-slider {
+    min-width: 200px;
+}
+
+.grupo-control {
+    display: flex;
+    gap: 10px;
+    flex-grow: 1;
+    max-width: 600px; /* Limita el largo total del slider + input */
+}
+
+.slider-personalizado {
+    flex-grow: 1;
+    min-width: 300px;
+}
+
+.input-num {
+    width: 80px;
+}
+
+.cerrar {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    color: #333;
+    cursor: pointer;
+}
