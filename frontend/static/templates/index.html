@@ -14,23 +14,30 @@
 
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.-->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
-    <title>Plot Best Value from Each Generation</title>
-    <!-- Plotly.js -->
-	 <script src="https://cdn.plot.ly/plotly-1.58.5.min.js"></script>
-	<script src="https://cdn.tailwindcss.com"></script>
-	 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css">
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.js"></script>
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/contrib/auto-render.min.js" 
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <title>Plot Best Value from Each Generation</title>
+
+  <!-- Plotly.js -->
+  <script src="https://cdn.plot.ly/plotly-1.58.5.min.js"></script>
+  <!-- Tailwindcss -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/contrib/auto-render.min.js" 
     onload="renderMathInElement(document.body);"></script>
+
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
 </head>
 <body>
+
   <!-- Botón para abrir el menú -->
   <button class="menu-button">≡</button>
 
@@ -38,155 +45,137 @@
   <div class="main-menu" id="mainMenu">
     <button class="menu-item">Color Palette</button>
     <div class="submenu" id="submenu">
-		<button class="submenu-button" id="btn-viridis" >Viridis</button>
-		<button class="submenu-button" id="btn-magma">Magma</button>
-		<button class="submenu-button" id="btn-cividis" >Cividis</button>
-		<button class="submenu-button" id="btn-blue-red" >Blue-Red</button>
-		<button class="submenu-button" id="btn-purple-pink" >Purple-Pink</button>
-		<button class="submenu-button" id="btn-spectrum">Spectrum</button>
+      <button class="submenu-button" id="btn-viridis">Viridis</button>
+      <button class="submenu-button" id="btn-magma">Magma</button>
+      <button class="submenu-button" id="btn-cividis">Cividis</button>
+      <button class="submenu-button" id="btn-blue-red">Blue-Red</button>
+      <button class="submenu-button" id="btn-purple-pink">Purple-Pink</button>
+      <button class="submenu-button" id="btn-spectrum">Spectrum</button>
     </div>
-    <button class="menu-item" >Disable Table Selection Mode</button>
-    <button class="menu-item" >Disable Hover</button>
-    <button class="menu-item" >Change Scale</button>
-	<div id="submenu-escala" class="submenu2">
-		<button id="btnTrain" class="submenu2-button">Training</button>
-		<button id="btnTest" class="submenu2-button">Validation</button>
-		<button id="btnSize" class="submenu2-button">Model Size</button>
-		<button id="btnRestore" class="submenu2-button">Default</button>
-	</div>
-	<button class="menu-item" >Hide Symbolic Model</button>
+    <button class="menu-item">Disable Table Selection Mode</button>
+    <button class="menu-item">Disable Hover</button>
+    <button class="menu-item">Change Scale</button>
+    <div id="submenu-escala" class="submenu2">
+      <button id="btnTrain" class="submenu2-button">Training</button>
+      <button id="btnTest" class="submenu2-button">Validation</button>
+      <button id="btnSize" class="submenu2-button">Model Size</button>
+      <button id="btnRestore" class="submenu2-button">Default</button>
+    </div>
+    <button class="menu-item">Hide Symbolic Model</button>
   </div>
-    <div id="container">
-        <div id="legendDiv"></div>
-        <div id="plotDiv"></div>
-		<div id="katexTooltip"></div>
-        <div id="plotDiv2"></div>
-    </div>
-	<div class="popup-contenedor2" id="popup2">
-        <div class="popup-encabezado2">
-            <h3 class="popup-titulo2">Symbolic Model</h3>
-            <button class="boton-cerrar2" id="cerrarPopup2">×</button>
+
+  <div id="container">
+    <div id="legendDiv"></div>
+    <div id="plotDiv"></div>
+    <div id="katexTooltip"></div>
+    <div id="plotDiv2"></div>
+    <!-- Contenedor para la gráfica 3D -->
+    <button id="show3DButton">Mostrar Visualización 3D</button>
+    <div id="plot3d-container">
+        <div class="loading-message">Cargando visualización 3D...</div>
+        <div class="data-warning" style="display: none;">
+            No hay datos disponibles para visualizar en 3D. 
+            <br>Asegúrate de cargar un archivo CSV primero en la visualización 2D.
         </div>
-        <div class="popup-contenido2">
-            <p><strong>¡Bienvenido a nuestra página!</strong></p>
-            <p>Esta es la información que querías mostrar en un pop-up no invasivo. Puedes personalizar este contenido con cualquier información que necesites compartir con tus usuarios.</p>
-            <p>Al aparecer en la esquina inferior derecha, no interrumpe la experiencia del usuario ni bloquea el contenido principal de la página.</p>
+        <div id="three-canvas-container" style="position: relative; width: 100%; height: 100%;">
+            <div class="canvas-3d-controls">
+                <div style="font-weight: bold; margin-bottom: 5px;">Controles 3D:</div>
+                <button id="show-all-3d-btn">Mostrar Todo</button>
+                <button id="play-3d-btn">Reproducir</button>
+                <button id="evolution-3d-btn">Evolución Óptima</button>
+            </div>
+            <canvas id="three-canvas"></canvas>
+            <div class="generation-controls-3d">
+                <label>Generación:</label>
+                <input type="range" id="generation-3d-slider" min="0" max="100" value="0">
+                <input type="number" id="generation-3d-input" value="0" min="0" max="100">
+            </div>
         </div>
+      </div>
     </div>
 
-<!--SEgundo CSs borrado-->
-
-<div id="custom-modal" style="display: none;">
-  <div id="custom-modal-overlay"></div>
-  <div id="custom-modal-box">
-    <p id="custom-modal-text"></p>
-     <div id="custom-modal-buttons"></div>
-  </div>
-</div>
-<div id="bienvenida">
-  <div class="titulo">Welcome</div>
-  <p>Use the animation system to visualize the machine learning process of your algorithm</p>
-  <button id="mostrarInstr" >Instructions</button>
-</div>
-
-<div id="instrucciones">
- <span class="cerrar" id="cerrarIns">X</span>
-  <div class="titulo">Instructions for use</div>
-  <div class="info-message">
-  <ul>
-    <li><strong>Before using any system functions, make sure to upload your CSV file.</strong> 
-Go to <strong>"CSV File" > "Customize Input File"</strong> to review the current system configuration and validate which columns from your file will be used.
-If there’s an issue with the configuration, a warning will appear in a pop-up window.
-Once everything is properly set, you can upload the file using <strong>"Select CSV File".</strong></li>
-    <li>In the top-left corner, you'll find a menu that allows you to customize the appearance and results of the main graph.</li>
-  </ul>
-  <h2 class="h2new"> About menu:</h2>
-   <ul>
-   <li><strong>Color Palette</strong> Allows you to change the color map applied to the system’s graphs. You can choose from six options: Viridis, Magma, Cividis, Blue-Red, Purple-Pink, and Electromagnetic Spectrum. </li>
-    <li><strong>Disable table selection mode: </strong> 
-Allows interaction with the cells in the side legend table to add or remove generational groups in the 2D semantic space graph.</li>
-    <li><strong> Disable hover effect:</strong> The system starts with the hover effect enabled by default. However, if it becomes distracting, it can be turned off using this option.</li>
-<li><strong>Change scale:</strong> Depending on the data in the CSV file, clicking this button will display up to three options: Size, Train, and Test. Each of these options rescales the points in the semantic space based on a 
-specific normalized range. </li>
-<li><strong>Hide symbolic expression: </strong> Removes the symbolic expression from the graph labels.</li>
- </ul>
-</div>
-
-</div>
-
-    <div class="button-container">
-	
-      <!-- Contenedor relativo para el botón y el menú -->
-  <div class="menu-wrapper">
-    <button id="toggleButton">CSV File</button>
-    <div id="dropdownMenu" class="dropdown-menu">
-      <button id="selectFileButton">Select CSV File</button>
-      <button id="customizeFile">Customize Input File</button>
+  <div class="popup-contenedor2" id="popup2">
+    <div class="popup-encabezado2">
+      <h3 class="popup-titulo2">Symbolic Model</h3>
+      <button class="boton-cerrar2" id="cerrarPopup2">×</button>
+    </div>
+    <div class="popup-contenido2">
+      <p><strong>¡Bienvenido a nuestra página!</strong></p>
+      <p>Esta es la información que querías mostrar en un pop-up no invasivo.</p>
     </div>
   </div>
-        <button id="playButton">Play</button>
-		<button id="showAllButton">Show All</button>
-        <button id="loadLastValuesButton">Evolution of Best Solution</button>
-		<button id="convergenceButton" >Add convergence</button>
-    </div>
-	 <div class="mini-overlay" id="overlay"></div>
 
+  <!-- Modal -->
+  <div id="custom-modal" style="display: none;">
+    <div id="custom-modal-overlay"></div>
+    <div id="custom-modal-box">
+      <p id="custom-modal-text"></p>
+      <div id="custom-modal-buttons"></div>
+    </div>
+  </div>
+
+  <div id="bienvenida">
+    <div class="titulo">Welcome</div>
+    <p>Use the animation system to visualize the machine learning process of your algorithm</p>
+    <button id="mostrarInstr">Instructions</button>
+  </div>
+
+  <div id="instrucciones">
+    <span class="cerrar" id="cerrarIns">X</span>
+    <div class="titulo">Instructions for use</div>
+    <div class="info-message">
+      <ul>
+        <li><strong>Before using any system functions, make sure to upload your CSV file.</strong></li>
+        <li>Use the menu to customize the appearance of the graph.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="button-container">
+    <div class="menu-wrapper">
+      <button id="toggleButton">CSV File</button>
+      <div id="dropdownMenu" class="dropdown-menu">
+        <button id="selectFileButton">Select CSV File</button>
+        <button id="customizeFile">Customize Input File</button>
+      </div>
+    </div>
+    <button id="playButton">Play</button>
+    <button id="showAllButton">Show All</button>
+    <button id="loadLastValuesButton">Evolution of Best Solution</button>
+    <button id="convergenceButton">Add convergence</button>
+  </div>
+
+  <div class="mini-overlay" id="overlay"></div>
   <div class="mini-popup" id="popup">
-  <div class="titulo">Edit columns from CSV file</div>
-  
-  <div class="info-message">
-  Columns 0 to 5 are essential for the system to function properly. The remaining columns are automatically disabled on startup. You can select those that are present in your CSV file and disable them again when necessary.
-  The <strong>"Toggle All"</strong> button allows you to enable or disable all columns automatically. 
-  Click <strong>"Confirm"</strong> to apply and save the changes.
-  <h2 class="h2new">About the data: </h2>
-  <li><strong>Component 1: </strong>X-axis of each individual.</li>
-  <li><strong>Component 2: </strong>Y-axis of each individual.</li>
-  <li><strong>Generation: </strong>Generation to which each individual belongs. Use [-1, -2, -3, -5] to identify the following: target value, initial population, random trees, and best individual, respectively. Use the remaining integers to identify the generations.</li>
- <li><strong>Component 1 (Best solution progress): </strong> X-axis of the individual that is part of the evolution trace of the best individual.</li>
-  <li><strong>Component 2 (Best solution progress): </strong> Y-axis of the individual that is part of the evolution trace of the best individual.</li>
-  <li><strong>Generation (Best solution progress): </strong> Generation to which each best individual belongs.</li> 
-  <li><strong>IsBest: </strong>Boolean data: “1” indicates the best individual of its generation; “0” indicates an average individual.</li>
-  <li><strong>Training: </strong>Numeric value of the training fitness for each individual.</li>
-  <li><strong>Normalized Training: </strong>Normalized numeric value of the training fitness for each individual. It is essential to have complete data in the entire column.</li>
-<li><strong>Validation: </strong>Numeric value of the test fitness for each individual.</li>
-  <li><strong>Normalized Training </strong>Normalized numeric value of the test fitness for each individual. It is essential to have complete data in the entire column.</li>
-<li><strong>Size: </strong>Numeric value of the individual’s size based on the number of operations.</li>
-<li><strong>Normalized Size: </strong>Normalized numeric value of the individual’s size based on the number of operations. It is essential to have complete data in the entire column.</li>
-<li><strong>Expression symbolic: </strong>Stores the mathematical expression that represents the individual.</li>
-</div>
-
-<div class="mini-table-container">
-    <table class="mini-table">
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>CSV column</th>
-        </tr>
-      </thead>
-      <tbody id="table-body">
-        <tr><td>Component 1</td><td>0</td></tr>
-        <tr><td>Component 2</td><td>1</td></tr>
-        <tr><td>Generation</td><td>2</td></tr>
-        <tr><td>Component 1 (Best Solution Progress)</td><td>3</td></tr>
-        <tr><td>Component 2 (Best Solution Progress)</td><td>4</td></tr>
-        <tr><td>Generation (Best Solution Progress)</td><td>5</td></tr>
-        <!-- Fila 6 a 13 generadas por JS -->
-      </tbody>
-    </table>
-</div>
+    <div class="titulo">Edit columns from CSV file</div>
+    <div class="info-message">...</div>
+    <div class="mini-table-container">
+      <table class="mini-table">
+        <thead>
+          <tr><th>Data</th><th>CSV column</th></tr>
+        </thead>
+        <tbody id="table-body">
+          <tr><td>Component 1</td><td>0</td></tr>
+          <tr><td>Component 2</td><td>1</td></tr>
+          <tr><td>Generation</td><td>2</td></tr>
+        </tbody>
+      </table>
+    </div>
     <button id="toggleAllBtn" class="buttonTable">Toggle All</button>
     <button id="confirmButton" class="buttonTable">Confirm</button>
   </div>
 
-<div class="fila-controles">
-  <label for="slider" class="etiqueta-slider">Show up to generation:</label>
-  
-  <div id="control" class="grupo-control">
-    <input type="range" id="slider" class="slider-personalizado" min="10" max="100" value="10" step="10" disabled>
-    <input type="number" id="numeroPuntos" min="10" max="100" value="10" step="10" disabled class="input-num">
+  <div class="fila-controles">
+    <label for="slider" class="etiqueta-slider">Show up to generation:</label>
+    <div id="control" class="grupo-control">
+      <input type="range" id="slider" class="slider-personalizado" min="10" max="100" value="10" step="10" disabled>
+      <input type="number" id="numeroPuntos" min="10" max="100" value="10" step="10" disabled class="input-num">
+    </div>
   </div>
-</div>
 
-<script src="{{ url_for('static', filename='js/visualization-2d.js') }}"></script>
+  <!-- JS existentes -->
+  <script src="{{ url_for('static', filename='js/visualization-2d.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/visualization-3d.js') }}"></script>
+
 </body>
 </html>

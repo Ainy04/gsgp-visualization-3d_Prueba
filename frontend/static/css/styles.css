@@ -448,13 +448,13 @@ button:disabled {
 
 /* Segundo codigo de CSS */
 
-#selectFileButton, #playButton, #showAllButton, #loadLastValuesButton, #convergenceButton, #toggleButton, #customizeFile {
+#selectFileButton, #playButton, #showAllButton, #loadLastValuesButton, #convergenceButton, #show3DButton, #toggleButton, #customizeFile {
     font-size: 150%;
     border-radius: 10px;
     padding: 15px 30px;
 }
 
-#selectFileButton, #playButton, #showAllButton, #loadLastValuesButton, #convergenceButton, #toggleButton, #customizeFile {
+#selectFileButton, #playButton, #showAllButton, #loadLastValuesButton, #convergenceButton, #show3DButton, #toggleButton, #customizeFile {
     padding: 15px 30px;
     border-radius: 10px;
 }
@@ -472,7 +472,7 @@ button:disabled {
 }
 
 /* Estilo para los botones */
-#selectFileButton, #playButton, #showAllButton, #loadLastValuesButton, #convergenceButton, #toggleButton, #customizeFile {
+#selectFileButton, #playButton, #showAllButton, #loadLastValuesButton, #convergenceButton, #show3DButton, #toggleButton, #customizeFile {
     font-size: 16px;
     padding: 12px 24px;
     border-radius: 8px;
@@ -484,18 +484,18 @@ button:disabled {
     transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
 }
 
-#toggleButton:hover, #selectFileButton:hover, #playButton:hover, #showAllButton:hover, #loadLastValuesButton:hover, #convergenceButton:hover, #customizeFile:hover {
+#toggleButton:hover, #selectFileButton:hover, #playButton:hover, #showAllButton:hover, #loadLastValuesButton:hover, #convergenceButton:hover, #show3DButton:hover, #customizeFile:hover {
     background-color: #0056b3; /* Azul más oscuro en hover */
     transform: scale(1.05);
 }
 
-#toggleButton:focus, #selectFileButton:focus, #playButton:focus, #showAllButton:focus, #loadLastValuesButton:focus, #convergenceButton:focus {
+#toggleButton:focus, #selectFileButton:focus, #playButton:focus, #showAllButton:focus, #loadLastValuesButton:focus, #convergenceButton:focus, #show3DButton:focus {
     outline: none;
     box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
 }
 
 /* Estilo para el botón presionado */
-#toggleButton:active, #selectFileButton:active, #playButton:active, #showAllButton:active, #loadLastValuesButton:active, #convergenceButton:active {
+#toggleButton:active, #selectFileButton:active, #playButton:active, #showAllButton:active, #loadLastValuesButton:active, #convergenceButton:active #show3DButton:active {
     background-color: #004085; /* Azul aún más oscuro cuando se presiona */
 }
 
@@ -539,7 +539,7 @@ input[type="text"]:focus, input[type="number"]:focus {
 
 /* Personalización del slider */
 #slider {
-    -webkit-appearance: none; /* Remover estilo predeterminado en Webkit */
+    appearance: none;  /* Remover estilo predeterminado en Webkit */
     width: 30%; /* Longitud del slider */
     margin: 10px 0;
     background: transparent; /* Fondo transparente para usar la pista personalizada */
@@ -823,3 +823,124 @@ tr {
     color: #333;
     cursor: pointer;
 }
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #1a1a2e;
+            color: white;
+        }
+        
+        #plot3d-container {
+            width: 100%;
+            height: 600px;
+            position: relative;
+            border: 2px solid #444;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            background-color: #1a1a2e;
+            display: none;
+        }
+        
+        #three-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        .canvas-3d-controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .canvas-3d-controls button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .canvas-3d-controls button:hover {
+            background: #45a049;
+        }
+        
+        .generation-controls-3d {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .generation-controls-3d label {
+            font-size: 14px;
+        }
+        
+        .generation-controls-3d input {
+            width: 60px;
+            padding: 5px;
+        }
+        
+        #show3DButton {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        
+        #show3DButton:hover {
+            background: #0b7dda;
+        }
+        
+        .selected-button {
+            background: #FF9800 !important;
+        }
+        
+        .loading-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 18px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 5px;
+            z-index: 1000;
+        }
+        
+        .data-warning {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 16px;
+            background: rgba(200, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 5px;
+            z-index: 1000;
+            text-align: center;
+            max-width: 80%;
+        }

@@ -585,8 +585,44 @@ document.addEventListener('DOMContentLoaded', function () {
         verificarArraysYMostrarSubmenu(generations, trainNormalizedValues, testNormalizedValues, sizeNormalizedValues);
         // Create color legend table
         createColorLegend(generations, colors);
-    }
-
+        function exposeDataToGlobal() {
+            // Hacer las variables disponibles globalmente para el sistema 3D
+            window.parsedData = parsedData;
+            window.Values = Values;
+            window.generations = generations;
+            window.colors = colors;
+            window.defaultSizes = defaultSizes;
+            window.IDs = IDs;
+            window.trainValues = trainValues;
+            window.testValues = testValues;
+            window.expressions = expressions;
+            
+            console.log("Datos 2D expuestos globalmente:", {
+                parsedDataLength: parsedData?.length,
+                generationsLength: generations?.length,
+                colorsLength: colors?.length
+            });
+        }
+        exposeDataToGlobal();
+        
+        // Integrar datos con el sistema 3D
+        if (window.visualization3D) {
+            integrate3DWithCSVLoad();
+        }
+        setTimeout(() => {
+            console.log("Disparando evento 2DDataReady");
+            const event = new CustomEvent("2DDataReady", {
+                detail: {
+                    parsedData: window.parsedData,
+                    Values: window.Values,
+                    generations: window.generations,
+                    colors: window.colors,
+                    defaultSizes: window.defaultSizes
+                }
+            });
+            window.dispatchEvent(event);
+        }, 100);
+}
 	// Attach event listener to the button
 	loadLastValuesButton.addEventListener('click', toggleLastElements);
 
@@ -1113,6 +1149,8 @@ const tableBody = document.querySelector('#legendDiv');
 		   {
 			plotConvergence();
 		   }
+           // Sincronizar colores con 3D
+            sync3DWithColorChange(colors);
     }
 	
 
@@ -1189,6 +1227,13 @@ document.getElementById('legendDiv').addEventListener('click', function(e) {
         // Solo agregar la clase 'selected' a la primera celda
         row.cells[0].classList.add('selected'); 
 		
+        // Sincronizar selección de tabla con 3D
+        sync3DWithTableSelection(
+            Array.from(selectedRows), 
+            removedRows, 
+            Array.from(manualSelectedGenerations)
+        );
+
         // Si estaba en `removedRows`, quitarlo de ahí
         const removedIndex = removedRows.indexOf(index);
 		console.log("removedIndex",removedIndex);
@@ -1674,6 +1719,10 @@ document.querySelectorAll('#legendDiv tr').forEach(row => {
 	{
 	asignarEventosHover();
 	}
+
+    // Sincronizar con 3D
+    sync3DWithSlider(valor);
+
     // Sincronizar controles
     slider.value = valor;
     numeroPuntos.value = valor;
@@ -1834,6 +1883,9 @@ document.querySelectorAll('#legendDiv tr').forEach(row => {
 		asignarEventosHover();
 		}
 		
+        // Sincronizar con 3D
+        sync3DWithSlider(valor);
+
 		if(lastValuesLoaded)
 		{
 			plotLastElements();
@@ -1974,6 +2026,9 @@ function asignarEventosHover() {
       actualizarGrafica(valor);
 	  
 	  }
+      // Sincronizar slider con 3D
+      sync3DWithSlider(valor);
+
       ultimoValorValido = valor; // Guardar el valor actual como válido
 	
 	  
@@ -2004,6 +2059,8 @@ var valor;
 		  else{
 		  actualizarGrafica(valorNumerico);
 		  }
+          // Sincronizar input numérico con 3D
+        sync3DWithSlider(valorNumerico);
         ultimoValorValido = valorNumerico;
       }
 
@@ -3321,5 +3378,54 @@ function enableTable(){
             clearLegendTable();
             clearPlot();
             promptForCSVFile();
-			
+// Verificar si hay funciones 3D disponibles y declararlas como funciones vacías si no existen
+if (typeof sync3DWithSlider !== 'function') {
+    window.sync3DWithSlider = function() {};
+}
+if (typeof sync3DWithShowAll !== 'function') {
+    window.sync3DWithShowAll = function() {};
+}
+if (typeof sync3DWithColorChange !== 'function') {
+    window.sync3DWithColorChange = function() {};
+}
+if (typeof sync3DWithTableSelection !== 'function') {
+    window.sync3DWithTableSelection = function() {};
+}
+if (typeof integrate3DWithCSVLoad !== 'function') {
+    window.integrate3DWithCSVLoad = function() {};
+}
+
+function show3DPlot() {
+    if (!data || data.length === 0) {
+        console.log('No data available for 3D plot');
+        return;
+    }
+    
+    console.log('Showing 3D plot with data:', data.length, 'points');
+    
+    // Crear contenedor 3D si no existe
+    let plotDiv3D = document.getElementById('plot3d');
+    if (!plotDiv3D) {
+        plotDiv3D = document.createElement('div');
+        plotDiv3D.id = 'plot3d';
+        plotDiv3D.style.cssText = 'width: 100%; height: 600px; background: #1a1a2e; border: 2px solid #444;';
+        document.body.appendChild(plotDiv3D);
+    }}
+    
+
         });
+
+window.checkDataStatus = function() {
+    console.log("window.parsedData:", window.parsedData ? `${window.parsedData.length} elementos` : 'undefined');
+    console.log("window.generations:", window.generations ? `${window.generations.length} elementos` : 'undefined');
+    
+    if (window.visualization3D) {
+        window.visualization3D.syncWith2DSystem({
+            parsedData: window.parsedData,
+            Values: window.Values,
+            generations: window.generations,
+            colors: window.colors,
+            defaultSizes: window.defaultSizes || []
+        });
+    }
+}        
