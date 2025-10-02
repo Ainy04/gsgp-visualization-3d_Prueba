@@ -19,11 +19,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const popup2 = document.getElementById('popup2');
 	
 	const cerrarIns = document.getElementById('cerrarIns');
-
-    // Variables globales para evitar bucles infinitos de sincronización
-    let isSyncing2DTo3D = false;
-    let isSyncing3DTo2D = false;
-
 	// Selecciona el contenedor del contenido del popup
 	const popupContenido = document.querySelector('.popup-contenido2');
 	const menuButton = document.querySelector(".menu-button");
@@ -35,50 +30,28 @@ document.addEventListener('DOMContentLoaded', function () {
 	const button5 = document.querySelector("#mainMenu .menu-item:nth-child(7)");
 	const confirmButton = document.getElementById("confirmButton");
 			
-	const tooltip = document.getElementById('katexTooltip');
-	const toggleAllBtn = document.getElementById("toggleAllBtn");
-	var playButton = document.getElementById('playButton');   
-	playButton.disabled=true;         
-	var showAllButton = document.getElementById('showAllButton');
-	showAllButton.disabled=true;
-	var loadLastValuesButton=document.getElementById('loadLastValuesButton');
-	loadLastValuesButton.disabled=true;
-	const toggleButton = document.getElementById("toggleButton");
-	const dropdownMenu = document.getElementById("dropdownMenu");
-	const customizeFile= document.getElementById("customizeFile");
-	
-        // Modificar el event listener del slider 2D
-    const slider2D = document.getElementById('slider');
-    if (slider2D) {
-        slider2D.addEventListener('input', function() {
-            const valor = parseInt(this.value);
-            
-            if (window.modo2) {
-                actualizarG2(valor);
-            } else {
-                actualizarGrafica(valor);
-            }
-            
-            // Sincronizar con 3D
-            sync3DWithSlider(valor);
-            
-            // Actualizar variables del sistema 2D
-            window.ultimoValorValido = valor;
-            
-            const playButton = document.getElementById('playButton');
-            if (playButton) {
-                playButton.textContent = 'Play';
-                window.animationPaused = true;
-                if (window.animationTimeout) {
-                    clearTimeout(window.animationTimeout);
-                }
-            }
-        });
-
-	const mostrarInstr= document.getElementById("mostrarInstr")
-	mostrarInstr.addEventListener("click", () => {
-		mostrarInstrucciones();
-	});
+        // Verificar que estamos en la página correcta antes de inicializar
+    if (document.getElementById('plotDiv')) {
+        // Solo ejecutar el código de visualización si estamos en visualization.html
+        
+        var playButton = document.getElementById('playButton');   
+        if (playButton) playButton.disabled = true;         
+        
+        var showAllButton = document.getElementById('showAllButton');
+        if (showAllButton) showAllButton.disabled = true;
+        
+        var loadLastValuesButton = document.getElementById('loadLastValuesButton');
+        if (loadLastValuesButton) loadLastValuesButton.disabled = true;
+        
+        const toggleButton = document.getElementById("toggleButton");
+        const dropdownMenu = document.getElementById("dropdownMenu");
+        const customizeFile = document.getElementById("customizeFile");
+        
+        // Resto de tu código de inicialización...
+    } else {
+        // Estamos en index.html, no hacer nada
+        console.log("En página de inicio, no se inicializa visualización");
+    }
 	
 	cerrarIns.addEventListener("click", () => {
 		cerrarInstrucciones();
@@ -332,37 +305,12 @@ document.addEventListener('DOMContentLoaded', function () {
         var fileInput = document.createElement('input');
         fileInput.type = 'file';
         fileInput.accept = '.csv';
-        fileInput.style.display = 'none'
-        fileInput.addEventListener('change', function (event) {
-            var file = event.target.files[0];
-					
-			if (!file){
-				uploadFile=false;
-				return ;
-	
-			}
-					
-            var reader = new FileReader();
-
-            reader.onload = function (e) {
-                var csvData = e.target.result;
-                processData(csvData);
-            };
-
-            reader.readAsText(file);
-            // Reset play button text to "Play" when selecting a new CSV file
-            /*playButton = document.getElementById('playButton');
-            playButton.textContent = 'Play';
-			playButton.disabled=false;
-			showAllButton.disabled=false;
-					  
-			*/
-					  
-        });
-
+        fileInput.style.display = 'none';
+        fileInput.addEventListener('change', handleFileSelect); // Usar la nueva función
         document.body.appendChild(fileInput);
         fileInput.click();
     }
+
     // Funcion para limpiar la tabla
     function clearLegendTable() {
         var legendDiv = document.getElementById('legendDiv');
@@ -429,6 +377,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let firstPositive = null;
     let secondPositive = null;
 
+    window.processData = processData;
 
     // Procesamiento de datos
     async function processData(csvData) { 
@@ -618,44 +567,8 @@ document.addEventListener('DOMContentLoaded', function () {
         verificarArraysYMostrarSubmenu(generations, trainNormalizedValues, testNormalizedValues, sizeNormalizedValues);
         // Create color legend table
         createColorLegend(generations, colors);
-        function exposeDataToGlobal() {
-            // Hacer las variables disponibles globalmente para el sistema 3D
-            window.parsedData = parsedData;
-            window.Values = Values;
-            window.generations = generations;
-            window.colors = colors;
-            window.defaultSizes = defaultSizes;
-            window.IDs = IDs;
-            window.trainValues = trainValues;
-            window.testValues = testValues;
-            window.expressions = expressions;
-            
-            console.log("Datos 2D expuestos globalmente:", {
-                parsedDataLength: parsedData?.length,
-                generationsLength: generations?.length,
-                colorsLength: colors?.length
-            });
-        }
-        exposeDataToGlobal();
-        
-        // Integrar datos con el sistema 3D
-        if (window.visualization3D) {
-            integrate3DWithCSVLoad();
-        }
-        setTimeout(() => {
-            console.log("Disparando evento 2DDataReady");
-            const event = new CustomEvent("2DDataReady", {
-                detail: {
-                    parsedData: window.parsedData,
-                    Values: window.Values,
-                    generations: window.generations,
-                    colors: window.colors,
-                    defaultSizes: window.defaultSizes
-                }
-            });
-            window.dispatchEvent(event);
-        }, 100);
-}
+    }
+
 	// Attach event listener to the button
 	loadLastValuesButton.addEventListener('click', toggleLastElements);
 
@@ -1182,8 +1095,6 @@ const tableBody = document.querySelector('#legendDiv');
 		   {
 			plotConvergence();
 		   }
-           // Sincronizar colores con 3D
-            sync3DWithColorChange(colors);
     }
 	
 
@@ -1260,13 +1171,6 @@ document.getElementById('legendDiv').addEventListener('click', function(e) {
         // Solo agregar la clase 'selected' a la primera celda
         row.cells[0].classList.add('selected'); 
 		
-        // Sincronizar selección de tabla con 3D
-        sync3DWithTableSelection(
-            Array.from(selectedRows), 
-            removedRows, 
-            Array.from(manualSelectedGenerations)
-        );
-
         // Si estaba en `removedRows`, quitarlo de ahí
         const removedIndex = removedRows.indexOf(index);
 		console.log("removedIndex",removedIndex);
@@ -1752,49 +1656,6 @@ document.querySelectorAll('#legendDiv tr').forEach(row => {
 	{
 	asignarEventosHover();
 	}
-
-    // Sincronizar con 3D
-    sync3DWithSlider(valor);
-
-    function sync3DWithSlider(valor) {
-    if (isSyncing3DTo2D) return; // Evitar bucle infinito
-    
-    isSyncing2DTo3D = true;
-    
-    if (window.visualization3D && window.visualization3D.isVisible) {
-        console.log('Sincronizando slider 2D → 3D, generación:', valor);
-        window.visualization3D.setGeneration(valor);
-    }
-    
-    setTimeout(() => {
-        isSyncing2DTo3D = false;
-    }, 100);
-}
-
-// Función mejorada para sincronizar botón play 2D → 3D
-function sync3DWithPlay(isPlaying) {
-    if (isSyncing3DTo2D) return; // Evitar bucle infinito
-    
-    isSyncing2DTo3D = true;
-    
-    if (window.visualization3D && window.visualization3D.isVisible) {
-        console.log('Sincronizando play 2D → 3D, estado:', isPlaying);
-        
-        // Si 2D está reproduciendo y 3D no, iniciar 3D
-        if (isPlaying && !window.visualization3D.isPlaying) {
-            window.visualization3D.toggleAnimation();
-        }
-        // Si 2D se pausa y 3D está reproduciendo, pausar 3D
-        else if (!isPlaying && window.visualization3D.isPlaying) {
-            window.visualization3D.toggleAnimation();
-        }
-    }
-    
-    setTimeout(() => {
-        isSyncing2DTo3D = false;
-    }, 100);
-}
-
     // Sincronizar controles
     slider.value = valor;
     numeroPuntos.value = valor;
@@ -1955,9 +1816,6 @@ function sync3DWithPlay(isPlaying) {
 		asignarEventosHover();
 		}
 		
-        // Sincronizar con 3D
-        sync3DWithSlider(valor);
-
 		if(lastValuesLoaded)
 		{
 			plotLastElements();
@@ -2098,9 +1956,6 @@ function asignarEventosHover() {
       actualizarGrafica(valor);
 	  
 	  }
-      // Sincronizar slider con 3D
-      sync3DWithSlider(valor);
-
       ultimoValorValido = valor; // Guardar el valor actual como válido
 	
 	  
@@ -2131,8 +1986,6 @@ var valor;
 		  else{
 		  actualizarGrafica(valorNumerico);
 		  }
-          // Sincronizar input numérico con 3D
-        sync3DWithSlider(valorNumerico);
         ultimoValorValido = valorNumerico;
       }
 
@@ -3450,115 +3303,5 @@ function enableTable(){
             clearLegendTable();
             clearPlot();
             promptForCSVFile();
-// Verificar si hay funciones 3D disponibles y declararlas como funciones vacías si no existen
-if (typeof sync3DWithSlider !== 'function') {
-    window.sync3DWithSlider = function() {};
-}
-if (typeof sync3DWithShowAll !== 'function') {
-    window.sync3DWithShowAll = function() {};
-}
-if (typeof sync3DWithColorChange !== 'function') {
-    window.sync3DWithColorChange = function() {};
-}
-if (typeof sync3DWithTableSelection !== 'function') {
-    window.sync3DWithTableSelection = function() {};
-}
-if (typeof integrate3DWithCSVLoad !== 'function') {
-    window.integrate3DWithCSVLoad = function() {};
-}
-
-function show3DPlot() {
-    if (!data || data.length === 0) {
-        console.log('No data available for 3D plot');
-        return;
-    }
-    
-    console.log('Showing 3D plot with data:', data.length, 'points');
-    
-    // Crear contenedor 3D si no existe
-    let plotDiv3D = document.getElementById('plot3d');
-    if (!plotDiv3D) {
-        plotDiv3D = document.createElement('div');
-        plotDiv3D.id = 'plot3d';
-        plotDiv3D.style.cssText = 'width: 100%; height: 600px; background: #1a1a2e; border: 2px solid #444;';
-        document.body.appendChild(plotDiv3D);
-    }}
-    
-
-        }});
-
-        // Función para reemplazar los event listeners del sistema 2D existentes
-function updateExisting2DEventListeners() {
-    // Función para modificar el togglePlay existente
-    const originalTogglePlay = window.togglePlay;
-    if (originalTogglePlay) {
-        window.togglePlay = function() {
-            const playButton = document.getElementById('playButton');
-            const wasPlaying = playButton && playButton.textContent === 'Pause';
-            
-            // Ejecutar la función original
-            originalTogglePlay.call(this);
-            
-            // Sincronizar después
-            setTimeout(() => {
-                const isNowPlaying = playButton && playButton.textContent === 'Pause';
-                sync3DWithPlay(isNowPlaying);
-            }, 50);
-        };
-    }
-}
-
-// Función principal para inicializar toda la sincronización
-function initializeSynchronization() {
-    console.log('Inicializando sincronización completa entre 2D y 3D...');
-    
-    // Actualizar métodos de Visualization3D
-    updateVisualization3DMethods();
-    
-    // Actualizar event listeners existentes del sistema 2D
-    updateExisting2DEventListeners();
-    
-    // Configurar nuevos event listeners mejorados para 3D
-    bindEnhanced3DEvents();
-    
-    console.log('Sincronización completa inicializada');
-}
-
-// Inicializar cuando ambos sistemas estén listos
-document.addEventListener('DOMContentLoaded', function() {
-    // Esperar a que ambos sistemas estén inicializados
-    const checkBothSystemsReady = setInterval(() => {
-        if (window.visualization3D && document.getElementById('slider') && document.getElementById('generation-3d-slider')) {
-            initializeSynchronization();
-            clearInterval(checkBothSystemsReady);
-        }
-    }, 500);
-    
-    // Timeout de seguridad
-    setTimeout(() => {
-        clearInterval(checkBothSystemsReady);
-        if (window.visualization3D) {
-            initializeSynchronization();
-        }
-    }, 10000);
-});
-
-// Exportar funciones para uso manual si es necesario
-window.initializeSynchronization = initializeSynchronization;
-window.sync3DWithSlider = sync3DWithSlider;
-window.sync3DWithPlay = sync3DWithPlay;
-
-window.checkDataStatus = function() {
-    console.log("window.parsedData:", window.parsedData ? `${window.parsedData.length} elementos` : 'undefined');
-    console.log("window.generations:", window.generations ? `${window.generations.length} elementos` : 'undefined');
-    
-    if (window.visualization3D) {
-        window.visualization3D.syncWith2DSystem({
-            parsedData: window.parsedData,
-            Values: window.Values,
-            generations: window.generations,
-            colors: window.colors,
-            defaultSizes: window.defaultSizes || []
+			
         });
-    }
-}        
