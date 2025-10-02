@@ -18,6 +18,24 @@
 
 </head>
 <body class="min-h-screen bg-gradient-to-b from-[rgba(226,231,235,0.6)] to-[rgba(152,207,247,0.6)]">
+
+    <!-- Modal Simple -->
+    <div id="modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-3">
+                    <div id="modalIcon" class="text-3xl"></div>
+                    <h3 id="modalTitle" class="text-lg font-bold"></h3>
+                </div>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            </div>
+            <p id="modalMessage" class="text-gray-700 mb-6"></p>
+            <button onclick="closeModal()" class="w-full bg-[#2C4A5E] text-white font-semibold py-2 px-4 rounded-md hover:bg-[#1a3a52]">
+                Aceptar
+            </button>
+        </div>
+    </div>
+
     <!-- Header -->
     <div class="bg-[#073251] fixed top-0 left-0 right-0 h-12 sm:h-14 md:h-16 flex items-center px-3 sm:px-4 md:px-6 z-50 py-6 sm:py-8 md:py-10 shadow-xl">
         <h1 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white" >GSGP VISUALIZATION</h1>
@@ -91,10 +109,10 @@
                 <div class="validation-message text-white text-xs" id="validationMessage"></div>
                 
                 <!-- Vista Previa del Archivo -->
-                <div class="file-preview mt-3" id="filePreview" style="display: none;">
+                <!-- <div class="file-preview mt-3" id="filePreview" style="display: none;">
                     <h3 class="text-white font-semibold mb-2 text-xs">Vista previa del archivo:</h3>
                     <div id="previewContent" class="bg-white/10 rounded-lg p-2 text-white text-[10px]"></div>
-                </div>
+                </div>-->
             </div>
         </div>
     </div>
@@ -203,14 +221,120 @@
     </div>
 </div>
 
-  <script> // Slider Script
-  const range = document.getElementById("myRange");
-  const span = document.getElementById("myValue");
+  <script> 
+    // Slider Script
+    const range = document.getElementById("myRange");
+    const span = document.getElementById("myValue");
 
-  // Actualizar el valor inicial
-  range.addEventListener("input", () => {
-    span.textContent = range.value; // Actualiza el texto del span con el valor del slider
-  });
+    // Actualizar el valor inicial
+    range.addEventListener("input", () => {
+        span.textContent = range.value; // Actualiza el texto del span con el valor del slider
+    });
+
+     // Manejar selección de archivo
+    function handleFileSelect(event) {
+        const file = event.target.files[0];
+
+        if (file) {
+            if (file.size > 50 * 1024 * 1024) {
+                showModal('error', 'Archivo demasiado grande', 'El archivo excede el límite de 50MB. Por favor, selecciona un archivo más pequeño.');
+                return;
+            }
+
+            const allowedTypes = ['.csv', '.fits'];
+            const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+                
+            if (allowedTypes.includes(fileExtension)) {
+                showModal('success', 'Archivo cargado', `El archivo "${file.name}" se ha cargado correctamente.`);
+            } else {
+                showModal('error', 'Formato no válido', 'Por favor, sube un archivo en formato CSV o FITS.');
+            }}
+        }
+
+        function showValidationMessage(message, type) {
+            const validationMessage = document.getElementById('validationMessage');
+            validationMessage.textContent = message;
+            validationMessage.className = `validation-message ${type}`;
+            validationMessage.style.display = 'block';
+        }
+
+        function showFilePreview(file) {
+            const filePreview = document.getElementById('filePreview');
+            const previewContent = document.getElementById('previewContent');
+            
+            /*previewContent.innerHTML = `
+                <p><strong>Nombre:</strong> ${file.name}</p>
+                <p><strong>Tamaño:</strong> ${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                <p><strong>Tipo:</strong> ${file.type || 'Desconocido'}</p>
+                <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem;">Vista previa de datos disponible después del procesamiento</p>
+            `;*/
+            
+            filePreview.style.display = 'block';
+        }
+
+        // Configurar drag and drop
+        const uploadArea = document.querySelector('.upload-area');
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                document.getElementById('fileInput').files = files;
+                handleFileSelect({ target: { files: files } });
+            }
+        });
+
+        // Funciones del Modal
+        function showModal(type, title, message) {
+            const modal = document.getElementById('modal');
+            const icon = document.getElementById('modalIcon');
+            const titleEl = document.getElementById('modalTitle');
+            const messageEl = document.getElementById('modalMessage');
+
+            if (!modal || !icon || !titleEl || !messageEl) return;
+
+            if (type === 'success') {
+                icon.textContent = '✓';
+                icon.className = 'text-3xl text-green-500';
+                titleEl.className = 'text-lg font-bold text-green-700';
+            } else if (type === 'error') {
+                icon.textContent = '✕';
+                icon.className = 'text-3xl text-red-500';
+                titleEl.className = 'text-lg font-bold text-red-700';
+            } else {
+                icon.textContent = 'ℹ';
+                icon.className = 'text-3xl text-blue-500';
+                titleEl.className = 'text-lg font-bold text-blue-700';
+            }
+
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
   </script>
 </body>
 </html>
