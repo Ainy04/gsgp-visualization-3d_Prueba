@@ -31,151 +31,78 @@
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/contrib/auto-render.min.js" 
     onload="renderMathInElement(document.body);"></script>
-
-  <!-- Three.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
 </head>
-<body>
+<body id="bg-body" class="min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8">
 
-  <!-- Botón para abrir el menú -->
-  <button class="menu-button">≡</button>
+  <!-- Welcome Card -->
+  <div class="relative z-20 bg-[#073556] bg-opacity-95 rounded-3xl shadow-2xl"
+       style="width: min(72.9vw, 700px); height: min(68.5vh, 370px);">
+    
+    <div class="h-full flex flex-col items-center justify-center p-8 lg:p-12 text-center">
+      <h1 class="text-white text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 tracking-wide">
+        WELCOME!
+      </h1>
+      
+      <p class="text-slate-300 text-base sm:text-lg lg:text-xl mb-8 leading-relaxed max-w-lg">
+        Use the animation system to visualize the machine learning process of your algorithm.
+      </p>
+      
+      <div class="flex flex-col items-center space-y-4 w-full max-w-sm">
+        <button id="btnInstructions" class="bg-[#072C46] hover:bg-[#244D6A] hover:border-[#98CFF7] hover:scale-105 text-white font-bold py-3 px-6 rounded-sm transition-all duration-200 text-base tracking-widest border-4 border-[#083453] shadow-xl w-auto">
+          INSTRUCTIONS
+        </button>
 
-  <!-- Menú compacto -->
-  <div class="main-menu" id="mainMenu">
-    <button class="menu-item">Color Palette</button>
-    <div class="submenu" id="submenu">
-      <button class="submenu-button" id="btn-viridis">Viridis</button>
-      <button class="submenu-button" id="btn-magma">Magma</button>
-      <button class="submenu-button" id="btn-cividis">Cividis</button>
-      <button class="submenu-button" id="btn-blue-red">Blue-Red</button>
-      <button class="submenu-button" id="btn-purple-pink">Purple-Pink</button>
-      <button class="submenu-button" id="btn-spectrum">Spectrum</button>
-    </div>
-    <button class="menu-item">Disable Table Selection Mode</button>
-    <button class="menu-item">Disable Hover</button>
-    <button class="menu-item">Change Scale</button>
-    <div id="submenu-escala" class="submenu2">
-      <button id="btnTrain" class="submenu2-button">Training</button>
-      <button id="btnTest" class="submenu2-button">Validation</button>
-      <button id="btnSize" class="submenu2-button">Model Size</button>
-      <button id="btnRestore" class="submenu2-button">Default</button>
-    </div>
-    <button class="menu-item">Hide Symbolic Model</button>
-  </div>
-
-  <div id="container">
-    <div id="legendDiv"></div>
-    <div id="plotDiv"></div>
-    <div id="katexTooltip"></div>
-    <div id="plotDiv2"></div>
-    <!-- Contenedor para la gráfica 3D -->
-    <button id="show3DButton">Mostrar Visualización 3D</button>
-    <div id="plot3d-container">
-        <div class="loading-message">Cargando visualización 3D...</div>
-        <div class="data-warning" style="display: none;">
-            No hay datos disponibles para visualizar en 3D. 
-            <br>Asegúrate de cargar un archivo CSV primero en la visualización 2D.
-        </div>
-        <div id="three-canvas-container" style="position: relative; width: 100%; height: 100%;">
-            <div class="canvas-3d-controls">
-                <div style="font-weight: bold; margin-bottom: 5px;">Controles 3D:</div>
-                <button id="show-all-3d-btn">Mostrar Todo</button>
-                <button id="play-3d-btn">Reproducir</button>
-                <button id="evolution-3d-btn">Evolución Óptima</button>
-            </div>
-            <canvas id="three-canvas"></canvas>
-            <div class="generation-controls-3d">
-                <label>Generación:</label>
-                <input type="range" id="generation-3d-slider" min="0" max="100" value="0">
-                <input type="number" id="generation-3d-input" value="0" min="0" max="100">
-            </div>
-        </div>
+        <button id="startButton" class="bg-[#072C46] hover:bg-[#244D6A] hover:border-[#98CFF7] hover:scale-105 text-white font-bold py-3 px-6 rounded-sm transition-all duration-200 text-base tracking-widest border-4 border-[#083453] shadow-xl w-auto">
+          START
+        </button>
       </div>
     </div>
-
-  <div class="popup-contenedor2" id="popup2">
-    <div class="popup-encabezado2">
-      <h3 class="popup-titulo2">Symbolic Model</h3>
-      <button class="boton-cerrar2" id="cerrarPopup2">×</button>
-    </div>
-    <div class="popup-contenido2">
-      <p><strong>¡Bienvenido a nuestra página!</strong></p>
-      <p>Esta es la información que querías mostrar en un pop-up no invasivo.</p>
-    </div>
   </div>
 
-  <!-- Modal -->
-  <div id="custom-modal" style="display: none;">
-    <div id="custom-modal-overlay"></div>
-    <div id="custom-modal-box">
-      <p id="custom-modal-text"></p>
-      <div id="custom-modal-buttons"></div>
-    </div>
-  </div>
-
-  <div id="bienvenida">
-    <div class="titulo">Welcome</div>
-    <p>Use the animation system to visualize the machine learning process of your algorithm</p>
-    <button id="mostrarInstr">Instructions</button>
-  </div>
-
-  <div id="instrucciones">
-    <span class="cerrar" id="cerrarIns">X</span>
-    <div class="titulo">Instructions for use</div>
-    <div class="info-message">
-      <ul>
-        <li><strong>Before using any system functions, make sure to upload your CSV file.</strong></li>
-        <li>Use the menu to customize the appearance of the graph.</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="button-container">
-    <div class="menu-wrapper">
-      <button id="toggleButton">CSV File</button>
-      <div id="dropdownMenu" class="dropdown-menu">
-        <button id="selectFileButton">Select CSV File</button>
-        <button id="customizeFile">Customize Input File</button>
+    <!-- Modal dentro de la card -->
+  <div id="modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 pointer-events-none transition-all duration-300 z-50">
+    <!-- Modal Card -->
+    <div class="bg-[#052942] rounded-2xl shadow-2xl p-6 max-w-md w-full transform scale-95 transition-all duration-300">
+      <button id="closeModal" class="absolute top-3 right-3 text-white text-2xl font-bold hover:text-gray-200">×</button>
+      <h2 class="text-white text-4xl font-bold mb-4">Instructions for use</h2>
+      <div class="bg-[#153E5B] bg-opacity-60 p-4 rounded-lg text-left text-slate-200">
+        <ul class="list-disc list-inside space-y-2">
+          <li>Before using any system functions, make sure to upload your CSV file.</li>
+          <li>Use the menu to customize the appearance of the graph.</li>
+        </ul>
       </div>
     </div>
-    <button id="playButton">Play</button>
-    <button id="showAllButton">Show All</button>
-    <button id="loadLastValuesButton">Evolution of Best Solution</button>
-    <button id="convergenceButton">Add convergence</button>
   </div>
 
-  <div class="mini-overlay" id="overlay"></div>
-  <div class="mini-popup" id="popup">
-    <div class="titulo">Edit columns from CSV file</div>
-    <div class="info-message">...</div>
-    <div class="mini-table-container">
-      <table class="mini-table">
-        <thead>
-          <tr><th>Data</th><th>CSV column</th></tr>
-        </thead>
-        <tbody id="table-body">
-          <tr><td>Component 1</td><td>0</td></tr>
-          <tr><td>Component 2</td><td>1</td></tr>
-          <tr><td>Generation</td><td>2</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <button id="toggleAllBtn" class="buttonTable">Toggle All</button>
-    <button id="confirmButton" class="buttonTable">Confirm</button>
-  </div>
+  <script>
+  // Redirigir Botón Start
+  document.getElementById('startButton').addEventListener('click', function() {
+    window.location.href = "{{ url_for('visualization') }}";
+  });
 
-  <div class="fila-controles">
-    <label for="slider" class="etiqueta-slider">Show up to generation:</label>
-    <div id="control" class="grupo-control">
-      <input type="range" id="slider" class="slider-personalizado" min="10" max="100" value="10" step="10" disabled>
-      <input type="number" id="numeroPuntos" min="10" max="100" value="10" step="10" disabled class="input-num">
-    </div>
-  </div>
+  // Elementos del modal
+  const btn = document.getElementById("btnInstructions");
+  const modal = document.getElementById("modal");
+  const close = document.getElementById("closeModal");
 
-  <!-- JS existentes -->
-  <script src="{{ url_for('static', filename='js/visualization-2d.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/visualization-3d.js') }}"></script>
+  // Abrir modal con animación
+  btn.addEventListener("click", () => {
+    modal.classList.remove("opacity-0", "pointer-events-none"); // Hacer el modal visible
+    modal.querySelector('div').classList.remove("scale-95"); // Escalar el contenido del modal
+    modal.classList.add("opacity-100"); 
+    modal.querySelector('div').classList.add("scale-100");
+  });
 
+  // Cerrar modal con animación
+  const closeModal = () => {
+    modal.classList.add("opacity-0", "pointer-events-none"); // Hacer el modal invisible
+    modal.classList.remove("opacity-100"); 
+    modal.querySelector('div').classList.add("scale-95");
+    modal.querySelector('div').classList.remove("scale-100");
+  }
+
+  close.addEventListener("click", closeModal); // Cerrar al hacer clic en el botón de cerrar
+  modal.addEventListener("click", e => { if(e.target === modal) closeModal(); }); // Cerrar al hacer clic fuera del contenido del modal
+  </script>
 </body>
 </html>

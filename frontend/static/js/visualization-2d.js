@@ -19,6 +19,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const popup2 = document.getElementById('popup2');
 	
 	const cerrarIns = document.getElementById('cerrarIns');
+
+    // Variables globales para evitar bucles infinitos de sincronización
+    let isSyncing2DTo3D = false;
+    let isSyncing3DTo2D = false;
+
 	// Selecciona el contenedor del contenido del popup
 	const popupContenido = document.querySelector('.popup-contenido2');
 	const menuButton = document.querySelector(".menu-button");
@@ -42,6 +47,34 @@ document.addEventListener('DOMContentLoaded', function () {
 	const dropdownMenu = document.getElementById("dropdownMenu");
 	const customizeFile= document.getElementById("customizeFile");
 	
+        // Modificar el event listener del slider 2D
+    const slider2D = document.getElementById('slider');
+    if (slider2D) {
+        slider2D.addEventListener('input', function() {
+            const valor = parseInt(this.value);
+            
+            if (window.modo2) {
+                actualizarG2(valor);
+            } else {
+                actualizarGrafica(valor);
+            }
+            
+            // Sincronizar con 3D
+            sync3DWithSlider(valor);
+            
+            // Actualizar variables del sistema 2D
+            window.ultimoValorValido = valor;
+            
+            const playButton = document.getElementById('playButton');
+            if (playButton) {
+                playButton.textContent = 'Play';
+                window.animationPaused = true;
+                if (window.animationTimeout) {
+                    clearTimeout(window.animationTimeout);
+                }
+            }
+        });
+
 	const mostrarInstr= document.getElementById("mostrarInstr")
 	mostrarInstr.addEventListener("click", () => {
 		mostrarInstrucciones();
@@ -1722,6 +1755,45 @@ document.querySelectorAll('#legendDiv tr').forEach(row => {
 
     // Sincronizar con 3D
     sync3DWithSlider(valor);
+
+    function sync3DWithSlider(valor) {
+    if (isSyncing3DTo2D) return; // Evitar bucle infinito
+    
+    isSyncing2DTo3D = true;
+    
+    if (window.visualization3D && window.visualization3D.isVisible) {
+        console.log('Sincronizando slider 2D → 3D, generación:', valor);
+        window.visualization3D.setGeneration(valor);
+    }
+    
+    setTimeout(() => {
+        isSyncing2DTo3D = false;
+    }, 100);
+}
+
+// Función mejorada para sincronizar botón play 2D → 3D
+function sync3DWithPlay(isPlaying) {
+    if (isSyncing3DTo2D) return; // Evitar bucle infinito
+    
+    isSyncing2DTo3D = true;
+    
+    if (window.visualization3D && window.visualization3D.isVisible) {
+        console.log('Sincronizando play 2D → 3D, estado:', isPlaying);
+        
+        // Si 2D está reproduciendo y 3D no, iniciar 3D
+        if (isPlaying && !window.visualization3D.isPlaying) {
+            window.visualization3D.toggleAnimation();
+        }
+        // Si 2D se pausa y 3D está reproduciendo, pausar 3D
+        else if (!isPlaying && window.visualization3D.isPlaying) {
+            window.visualization3D.toggleAnimation();
+        }
+    }
+    
+    setTimeout(() => {
+        isSyncing2DTo3D = false;
+    }, 100);
+}
 
     // Sincronizar controles
     slider.value = valor;
@@ -3413,7 +3485,68 @@ function show3DPlot() {
     }}
     
 
-        });
+        }});
+
+        // Función para reemplazar los event listeners del sistema 2D existentes
+function updateExisting2DEventListeners() {
+    // Función para modificar el togglePlay existente
+    const originalTogglePlay = window.togglePlay;
+    if (originalTogglePlay) {
+        window.togglePlay = function() {
+            const playButton = document.getElementById('playButton');
+            const wasPlaying = playButton && playButton.textContent === 'Pause';
+            
+            // Ejecutar la función original
+            originalTogglePlay.call(this);
+            
+            // Sincronizar después
+            setTimeout(() => {
+                const isNowPlaying = playButton && playButton.textContent === 'Pause';
+                sync3DWithPlay(isNowPlaying);
+            }, 50);
+        };
+    }
+}
+
+// Función principal para inicializar toda la sincronización
+function initializeSynchronization() {
+    console.log('Inicializando sincronización completa entre 2D y 3D...');
+    
+    // Actualizar métodos de Visualization3D
+    updateVisualization3DMethods();
+    
+    // Actualizar event listeners existentes del sistema 2D
+    updateExisting2DEventListeners();
+    
+    // Configurar nuevos event listeners mejorados para 3D
+    bindEnhanced3DEvents();
+    
+    console.log('Sincronización completa inicializada');
+}
+
+// Inicializar cuando ambos sistemas estén listos
+document.addEventListener('DOMContentLoaded', function() {
+    // Esperar a que ambos sistemas estén inicializados
+    const checkBothSystemsReady = setInterval(() => {
+        if (window.visualization3D && document.getElementById('slider') && document.getElementById('generation-3d-slider')) {
+            initializeSynchronization();
+            clearInterval(checkBothSystemsReady);
+        }
+    }, 500);
+    
+    // Timeout de seguridad
+    setTimeout(() => {
+        clearInterval(checkBothSystemsReady);
+        if (window.visualization3D) {
+            initializeSynchronization();
+        }
+    }, 10000);
+});
+
+// Exportar funciones para uso manual si es necesario
+window.initializeSynchronization = initializeSynchronization;
+window.sync3DWithSlider = sync3DWithSlider;
+window.sync3DWithPlay = sync3DWithPlay;
 
 window.checkDataStatus = function() {
     console.log("window.parsedData:", window.parsedData ? `${window.parsedData.length} elementos` : 'undefined');

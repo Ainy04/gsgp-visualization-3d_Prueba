@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+  <title>Plot Best Value from Each Generation</title>
+
+  <!-- Plotly.js -->
+  <script src="https://cdn.plot.ly/plotly-1.58.5.min.js"></script>
+  <!-- Tailwindcss -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/contrib/auto-render.min.js" 
+    onload="renderMathInElement(document.body);"></script>
+
+</head>
+<body class="min-h-screen bg-gradient-to-b from-[rgba(226,231,235,0.6)] to-[rgba(152,207,247,0.6)]">
+    <!-- Header -->
+    <div class="bg-[#073251] fixed top-0 left-0 right-0 h-12 sm:h-14 md:h-16 flex items-center px-3 sm:px-4 md:px-6 z-50 py-6 sm:py-8 md:py-10 shadow-xl">
+        <h1 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white" >GSGP VISUALIZATION</h1>
+    </div> 
+
+<!-- Main Content -->
+<div class="flex flex-col md:flex-row h-screen w-screen overflow-hidden bg-gradient-to-b from-gray-200 to-blue-200">
+
+    <!-- Columna Izquierda -->
+    <div class="bg-[#B6C4CD] bg-opacity-95 shadow-2xl p-4 md:p-6 w-full md:w-[320px] overflow-y-auto">
+        <!-- Pantalla de Subida -->
+        <div class="screen">
+            <div class="upload-section">
+                
+                <!-- Area de Carga de Archivo -->
+                <div class="mb-3">
+                    <div class="upload-area bg-[#395A73] border-2 border-dashed border-[#052238] hover:border-[#244D6A] rounded-lg p-3 text-center cursor-pointer hover:bg-[#6D889C] transition-all" 
+                        onclick="document.getElementById('fileInput').click()">
+                        
+                        <!-- Imagen de carpeta más pequeña -->
+                        <div class="upload-icon w-12 h-12 mx-auto mb-2"></div>
+                        
+                        <!-- Texto más compacto -->
+                        <p class="text-white font-medium mb-1 text-xs">Arrastra tu archivo aquí o haz clic para seleccionar</p>
+                        <p class="text-white/60 text-[10px]">Formatos: CSV, FITS (máx. 50MB)</p>
+                        
+                    </div>
+                    <input type="file" id="fileInput" class="hidden" accept=".csv,.fits" onchange="handleFileSelect(event)">
+                </div>
+                
+                <!-- Linea de separación -->
+                <div class="border-t-2 border-gray-700 my-3"></div>
+
+                <!-- Título de la sección -->
+                <h2 class="text-[#031623] font-bold text-lg mb-3">VISUALIZATION:</h2>
+
+                <!-- Dropdown 1: Generación -->
+                <div class="mb-2">
+                    <label class="block text-[#031623] font-medium mb-1 text-xs italic">Label by:</label>
+                    <select class="w-full rounded-md bg-[#395A73] text-white px-3 py-2 text-sm font-semibold appearance-none cursor-pointer border-none focus:ring-2 focus:ring-white/30 focus:outline-none"
+                            style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27white%27%3e%3cpath d=%27M7 10l5 5 5-5z%27/%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 1.2em 1.2em;">
+                        <option value="gen1">Generation 1</option>
+                        <option value="gen2">Generation 2</option>
+                        <option value="gen3">Generation 3</option>
+                    </select>
+                </div>
+
+                <!-- Dropdown 2: Color -->
+                <div class="mb-2">
+                    <label class="block text-[#031623] font-medium mb-1 text-xs italic">Color by:</label>
+                    <select class="w-full rounded-md bg-[#395A73] text-white px-3 py-2 text-sm font-semibold appearance-none cursor-pointer border-none focus:ring-2 focus:ring-white/30 focus:outline-none"
+                            style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27white%27%3e%3cpath d=%27M7 10l5 5 5-5z%27/%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 1.2em 1.2em;">
+                        <option value="isbest">IsBest</option>
+                        <option value="gen">Generation</option>
+                        <option value="fitness">Fitness</option>
+                    </select>
+                </div>
+
+                <!-- Dropdown 3: Método de Reducción -->
+                <div class="mb-2">
+                    <label class="block text-[#031623] font-medium mb-1 text-xs italic">Reduction Method:</label>
+                    <select class="w-full rounded-md bg-[#395A73] text-white px-3 py-2 text-sm font-semibold appearance-none cursor-pointer border-none focus:ring-2 focus:ring-white/30 focus:outline-none"
+                            style="background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27white%27%3e%3cpath d=%27M7 10l5 5 5-5z%27/%3e%3c/svg%3e'); background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 1.2em 1.2em;">
+                        <option value="pca">PCA</option>
+                        <option value="tsne">t-SNE</option>
+                        <option value="umap">UMAP</option>
+                    </select>
+                </div>
+
+                <!-- Mensajes de Validación -->
+                <div class="validation-message text-white text-xs" id="validationMessage"></div>
+                
+                <!-- Vista Previa del Archivo -->
+                <div class="file-preview mt-3" id="filePreview" style="display: none;">
+                    <h3 class="text-white font-semibold mb-2 text-xs">Vista previa del archivo:</h3>
+                    <div id="previewContent" class="bg-white/10 rounded-lg p-2 text-white text-[10px]"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Columna Central -->
+    <div class="bg-[#E2E7EB] bg-opacity-95 shadow-2xl p-4 md:p-6 flex-1 overflow-y-auto">
+        <!-- Tu contenido central aquí -->
+    </div>
+
+    <!-- Columna Derecha -->
+    <div class="bg-[#B6C4CD] bg-opacity-95 shadow-2xl p-4 w-full md:w-[270px] overflow-y-auto">
+        
+        <!-- CONTROLS Section -->
+        <div class="mb-4 md:relative md:top-20">
+            <h2 class="text-[#1a3a52] font-bold text-lg mb-3 italic">CONTROLS</h2>
+            
+            <!-- Botones Play y Show All -->
+            <div class="flex gap-2 mb-4">
+                <button class="flex-1 bg-[#2C4A5E] text-white font-semibold py-2 px-4 rounded-md hover:bg-[#1a3a52] transition-colors">
+                    Play
+                </button>
+                <button class="flex-1 bg-[#2C4A5E] text-white font-semibold py-2 px-4 rounded-md hover:bg-[#1a3a52] transition-colors">
+                    Show All
+                </button>
+            </div>
+            
+            <!-- Slider de generación -->
+            <div class="mb-3">
+                <label class="block text-[#1a3a52] text-sm font-medium mb-2 italic">Show up to generation:</label>
+                <div class="flex items-center gap-3">
+                    <input type="range" id="myRange" min="0" max="200" value="0" step="10"  
+                        class="flex-1 h-2 bg-[#052942] border-2  border-[#073556] rounded-lg appearance-none cursor-pointer accent-[#fff]">
+                    <span id="myValue" class="bg-white text-[#2C4A5E] font-bold px-3 py-1 rounded text-sm min-w-[50px] text-center">0</span>
+                </div>
+            </div>
+            
+            <!-- Botones adicionales -->
+            <button class="w-full bg-[#2C4A5E] text-white font-semibold py-2 px-4 rounded-md hover:bg-[#1a3a52] transition-colors mb-2">
+                Evolution of Best<br>Solution
+            </button>
+            
+            <button class="w-full bg-[#2C4A5E] text-white font-semibold py-2 px-4 rounded-md hover:bg-[#1a3a52] transition-colors mb-3">
+                Add Convergence
+            </button>
+        </div>
+        
+        <!-- Línea separadora -->
+        <div class="border-t-2 border-[#1a3a52] my-3 md:relative md:top-20 w-full"></div>
+        
+        <!-- LEGEND Section -->
+        <div>
+            <h2 class="text-[#1a3a52] md:relative md:top-20 font-bold text-lg mb-3 italic">LEGEND</h2>
+            
+            <!-- Tabla de leyenda -->
+            <div class="bg-[#2C4A5E] md:relative md:top-20 rounded-lg overflow-hidden">
+                <!-- Header -->
+                <div class="grid grid-cols-2 bg-[#2C4A5E] text-white font-semibold text-sm">
+                    <div class="p-2 text-center border-r border-[#4A6B7C] italic">Item</div>
+                    <div class="p-2 text-center italic">Symbol</div>
+                </div>
+                
+                <!-- Filas de la tabla -->
+                <div class="grid grid-cols-2 text-white text-xs">
+                    <!-- Target Value -->
+                    <div class="p-2 bg-[#4A6B7C] border-b border-[#2C4A5E] border-r border-[#2C4A5E]">Target Value</div>
+                    <div class="p-2 bg-[#4A6B7C] border-b border-[#2C4A5E] text-center">
+                        <span class="text-xl">★</span>
+                    </div>
+                    
+                    <!-- Initial Population -->
+                    <div class="p-2 bg-[#6B8A9E] border-b border-[#2C4A5E] border-r border-[#2C4A5E]">Initial Population</div>
+                    <div class="p-2 bg-[#6B8A9E] border-b border-[#2C4A5E] text-center">
+                        <span class="text-xl">●</span>
+                    </div>
+                    
+                    <!-- Random Trees -->
+                    <div class="p-2 bg-[#8BA3B3] border-b border-[#2C4A5E] border-r border-[#2C4A5E]">Random Trees</div>
+                    <div class="p-2 bg-[#8BA3B3] border-b border-[#2C4A5E] text-center">
+                        <span class="text-xl">▼</span>
+                    </div>
+                    
+                    <!-- Generaciones (Gen 10 a Gen 70) -->
+                    <div class="p-2 bg-[#9BB3C3] border-b border-[#2C4A5E] border-r border-[#2C4A5E]">Gen 10</div>
+                    <div class="p-2 bg-[#9BB3C3] border-b border-[#2C4A5E]"></div>
+                    
+                    <div class="p-2 bg-[#AAC0CE] border-b border-[#2C4A5E] border-r border-[#2C4A5E]">Gen 20</div>
+                    <div class="p-2 bg-[#AAC0CE] border-b border-[#2C4A5E]"></div>
+                    
+                    <div class="p-2 bg-[#B5CAD6] border-b border-[#2C4A5E] border-r border-[#2C4A5E]">Gen 30</div>
+                    <div class="p-2 bg-[#B5CAD6] border-b border-[#2C4A5E]"></div>
+                    
+                    <div class="p-2 bg-[#BFD3DD] border-b border-[#2C4A5E] border-r border-[#2C4A5E]">Gen 40</div>
+                    <div class="p-2 bg-[#BFD3DD] border-b border-[#2C4A5E]"></div>
+                    
+                    <div class="p-2 bg-[#C8DBE4] border-b border-[#2C4A5E] border-r border-[#2C4A5E]">Gen 50</div>
+                    <div class="p-2 bg-[#C8DBE4] border-b border-[#2C4A5E]"></div>
+                    
+                    <div class="p-2 bg-[#D1E3EB] border-b border-[#2C4A5E] border-r border-[#2C4A5E]">Gen 60</div>
+                    <div class="p-2 bg-[#D1E3EB] border-b border-[#2C4A5E]"></div>
+                    
+                    <div class="p-2 bg-[#DAEBF2] border-r border-[#2C4A5E]">Gen 70</div>
+                    <div class="p-2 bg-[#DAEBF2]"></div>
+                </div>
+            </div>
+        </div> 
+    </div>
+</div>
+
+  <script> // Slider Script
+  const range = document.getElementById("myRange");
+  const span = document.getElementById("myValue");
+
+  // Actualizar el valor inicial
+  range.addEventListener("input", () => {
+    span.textContent = range.value; // Actualiza el texto del span con el valor del slider
+  });
+  </script>
+</body>
+</html>
